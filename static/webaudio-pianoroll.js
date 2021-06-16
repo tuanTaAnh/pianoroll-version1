@@ -740,10 +740,10 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                 this.ctx.fillStyle = '#000';
                 this.ctx.font = "10px Arial";
                 this.ctx.fillText("CLICKED", x, y);
-                // this.ctx.fillRect(x,y,1,y2-y);
-                // this.ctx.fillRect(x2,y,1,y2-y);
-                // this.ctx.fillRect(x,y,x2-x,1);
-                // this.ctx.fillRect(x,y2,x2-x,1);
+                this.ctx.fillRect(x,y,1,y2-y);
+                this.ctx.fillRect(x2,y,1,y2-y);
+                this.ctx.fillRect(x,y,x2-x,1);
+                this.ctx.fillRect(x,y2,x2-x,1);
             }
 
             // Ham quan trong
