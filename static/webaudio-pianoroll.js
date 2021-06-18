@@ -15,7 +15,7 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                         this[v.observer]();
                 }
             });
-        }        
+        }
     }
     connectedCallback(){
         let root;
@@ -336,6 +336,13 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             }
             this.redraw();
         };
+         this.reSet=function(){
+             this.sequence=[];
+             console.log("Empty sequence");
+             this.redraw();
+             var s = document.getElementById('songlyric').value;
+             this.lyricSong = this.getWord(s);
+         }
         this.getMMLString=function(){
             function makeNote(n,l,tb){
                 console.log("makeNote: ");
@@ -658,6 +665,12 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             }
         };
         this.semiflag=[6,1,0,1,0,2,1,0,1,0,1,0];
+        console.log("this.semiflag: ", this.semiflag);
+        this.lyricSong = [];
+        this.setLyric=function(s){
+            this.lyricSong = this.getWord(s);
+        }
+
         this.redrawXRuler=function(){
             if(this.xruler){
                 this.ctx.textAlign="left";
@@ -709,8 +722,17 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                 this.ctx.fillRect(this.dragging.p.x,this.dragging.p.y,this.dragging.p2.x-this.dragging.p.x,this.dragging.p2.y-this.dragging.p.y);
             }
         };
+        this.colorNote = [];
         this.redraw=function() {
-            let x,w,y,x2,y2;
+            var elementLyric = document.getElementById('songlyric');
+            if(elementLyric != null)
+            {
+                var str = elementLyric.value;
+                this.lyricSong = this.getWord(str);
+            }
+
+            console.log("this.lyricSong.length: ", this.lyricSong.length);
+            let x,w,y,x2,y2, pos;
             if(!this.ctx)
                 return;
             this.ctx.clearRect(0,0,this.width,this.height);
@@ -722,10 +744,15 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             for(let s=0; s<l; ++s){
                 const ev=this.sequence[s];
                 w=ev.g*this.stepw;
-                x=(ev.t-this.xoffset)*this.stepw+this.yruler+this.kbwidth;
+                pos = (ev.t-this.xoffset);
+                x=pos*this.stepw+this.yruler+this.kbwidth;
                 x2=(x+w)|0; x|=0;
                 y=this.height - (ev.n-this.yoffset)*this.steph;
                 y2=(y-this.steph)|0; y|=0;
+
+                console.log("pos: ", pos);
+
+                console.log("s: ", s);
                 console.log("x: ", x, " y: ", y, " x2-x: ", x2-x, " y2-y: ", y2-y);
                 if(ev.f)
                     this.ctx.fillStyle=this.colnotesel;
@@ -735,11 +762,25 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                 if(ev.f)
                     this.ctx.fillStyle=this.colnoteselborder;
                 else
+                {
                     this.ctx.fillStyle=this.colnoteborder;
+                }
+
                 /// text color
-                this.ctx.fillStyle = '#000';
-                this.ctx.font = "10px Arial";
-                this.ctx.fillText("CLICKED", x, y);
+                this.ctx.fillStyle = 'black';
+                this.ctx.font = "15px Arial";
+                if(pos < this.lyricSong.length)
+                {
+                    var lyr = this.lyricSong[pos];
+                    this.ctx.fillText(lyr, x+(x2-x)/4, y2);
+                }
+                else
+                {
+                     this.ctx.font = "12px Arial";
+                    this.ctx.fillText("No Lyric", x, y2);
+                }
+
+
                 this.ctx.fillRect(x,y,1,y2-y);
                 this.ctx.fillRect(x2,y,1,y2-y);
                 this.ctx.fillRect(x,y,x2-x,1);
@@ -814,11 +855,6 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             ht.m="s";
             return ht;
         };
-
-
-
-
-
 
 
         this.setListener=function(el,mode){
@@ -1068,7 +1104,28 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             }
             return obj;
         };
-
+        this.delAreaNote=function(t,g,n){
+            const l=this.sequence.length;
+            for(let i=l-1;i>=0;--i){
+                const ev=this.sequence[i];
+                if(typeof(n)!="undefined" && n!=i){
+                    if(t<=ev.t && t+g>=ev.t+ev.g){
+                        this.sequence.splice(i,1);
+                    }
+                    else if(t<=ev.t && t+g>ev.t && t+g<ev.t+ev.g){
+                        ev.g=ev.t+ev.g-(t+g);
+                        ev.t=t+g;
+                    }
+                    else if(t>=ev.t && t<ev.t+ev.g && t+g>=ev.t+ev.g){
+                        ev.g=t-ev.t;
+                    }
+                    else if(t>ev.t && t+g<ev.t+ev.g){
+                        this.addNote(t+g,ev.n,ev.t+ev.g-t-g,this.defvelo);
+                        ev.g=t-ev.t;
+                    }
+                }
+            }
+        };
 
 
 
@@ -1103,28 +1160,6 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
         //     console.log("this.delNote: ");
         //     this.sequence.splice(idx,1);
         //     this.redraw();
-        // };
-        // this.delAreaNote=function(t,g,n){
-        //     const l=this.sequence.length;
-        //     for(let i=l-1;i>=0;--i){
-        //         const ev=this.sequence[i];
-        //         if(typeof(n)!="undefined" && n!=i){
-        //             if(t<=ev.t && t+g>=ev.t+ev.g){
-        //                 this.sequence.splice(i,1);
-        //             }
-        //             else if(t<=ev.t && t+g>ev.t && t+g<ev.t+ev.g){
-        //                 ev.g=ev.t+ev.g-(t+g);
-        //                 ev.t=t+g;
-        //             }
-        //             else if(t>=ev.t && t<ev.t+ev.g && t+g>=ev.t+ev.g){
-        //                 ev.g=t-ev.t;
-        //             }
-        //             else if(t>ev.t && t+g<ev.t+ev.g){
-        //                 this.addNote(t+g,ev.n,ev.t+ev.g-t-g,this.defvelo);
-        //                 ev.g=t-ev.t;
-        //             }
-        //         }
-        //     }
         // };
         // this.delSelectedNote=function(){
         //     const l=this.sequence.length;
@@ -1232,11 +1267,20 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
         }
         return v;
     }
-    // sendEvent(ev){
-    //     let event;
-    //     event=document.createEvent("HTMLEvents");
-    //     event.initEvent(ev,false,true);
-    //     this.dispatchEvent(event);
-    // }
+    getWord(str){
+        console.log("SHOW LYRIC SENTENCES.");
+        var words = str.split(" ");
+        for (var i = 0; i < words.length; i++) {
+            console.log(words[i], " ");
+        }
+        return words;
+    }
+    sendEvent(ev){
+        let event;
+        event=document.createEvent("HTMLEvents");
+        event.initEvent(ev,false,true);
+        this.dispatchEvent(event);
+    }
     disconnectedCallback(){}
+
 });
