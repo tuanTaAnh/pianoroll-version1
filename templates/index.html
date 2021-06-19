@@ -87,6 +87,18 @@ transition: all 0.2s;
 #update-button:hover{
     background-color:#4095c6;
 }
+#status-Selection{
+    width: 100px;
+    background-color: antiquewhite;
+    border: 1px solid;
+    border-radius: 3px;
+}
+#color-Selection{
+    width: 100px;
+    background-color: antiquewhite;
+    border: 1px solid;
+    border-radius: 3px;
+}
 
 </style>
 <!--<script src="bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>-->
@@ -184,8 +196,16 @@ function Layout(k){
 <button style="width: 100px;" onclick="Reset()">Reset</button>
 <button style="width: 100px;" onclick="Play()">Play</button>
 <button style="width: 100px;" onclick="document.getElementById('proll').stop()">Stop</button>
+<select id="status-Selection">
+    <option value="Active">Active</option>
+    <option value="Inactive">Inactive</option>
+</select>
+<select id="color-Selection">
+    <option value="Normal">Normal</option>
+    <option value="Colorfull">Colorfull</option>
+</select>
 <br/>
-<textarea id="mml" rows="10" cols="80"></textarea>
+<textarea id="mml" rows="10" cols="88"></textarea>
 <br/>
 <hr/>
 <script>

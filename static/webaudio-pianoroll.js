@@ -146,6 +146,17 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
         this.sortSequence=function(){
             this.sequence.sort((x,y)=>{return x.t-y.t;});
         };
+        this.status = true;
+        this.setStatus=function(str) {
+            if(str=="Active")
+            {
+                this.status = true;
+            }
+            else
+            {
+                this.status = false;
+            }
+        }
         this.findNextEv=function(tick){
             for(let i=0;i<this.sequence.length;++i){
                 console.log("this.findNextEv 1");
@@ -177,8 +188,8 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                 while(current+this.preload>=this.time1){
                     this.time0=this.time1;
                     this.tick0=this.tick1;
-                    // console.log("this.time0: ", this.time0);
-                    // console.log("this.time1: ", this.time1);
+                    console.log("this.time0: ", this.time0);
+                    this.redraw();
                     let e=this.sequence[this.index1];
                     if(!e || e.t>=this.markend){
                         this.timestack.push([this.time1,this.markstart,this.tick2time]);
@@ -205,6 +216,7 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                         }
                         else
                             this.time1+=(e.t-this.tick1)*this.tick2time;
+                        console.log("this.time1: ", this.time1);
                     }
                 }
             }
@@ -731,6 +743,16 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
         };
         this.colorNote = ["#FF0000", "#90EE90", "#7FFF00", "#FFF8DC", "#BC8F8F", "#FF69B4", "#FFA500", "#FFFACD", "#1E90FF", "#2F4F4F", "#000080", "#483D8B"];
         this.redraw=function() {
+            var colSelection = document.getElementById("color-Selection");
+            var colStatus;
+            if(colSelection == null || colSelection.value == "Normal")
+            {
+                colStatus = 1;
+            }
+            else
+            {
+                colStatus = 2;
+            }
             console.log("REDRAW");
             var elementLyric = document.getElementById('songlyric');
             if(elementLyric != null)
@@ -774,8 +796,8 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
 
             for(let s=0; s<l; ++s){
                 const ev=this.sequence[s];
-                w=ev.g*this.stepw;
                 var posX = (ev.t-this.xoffset);
+                w=ev.g*this.stepw;
                 x=sequenceX[s];
                 x2=sequenceX2[s];
                 y=sequenceY[s];
@@ -791,25 +813,33 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                 }
                 else
                 {
-                     this.ctx.font = "12px Arial";
+                    this.ctx.font = "12px Arial";
                     this.ctx.fillText("No Lyric", x, y2);
                 }
                 pos++;
 
                 if(ev.f)
                 {
-                    console.log("EV.F");
-                    console.log("this.colnotesel: ", this.colnotesel);
+                    // console.log("EV.F");
+                    // console.log("this.colnotesel: ", this.colnotesel);
                     this.ctx.fillStyle=this.colnotesel;
                 }
                 else
                 {
-                    console.log("EV");
+                    // console.log("EV");
                     // this.ctx.fillStyle=this.colnote;
-                    var ranColor = Math.floor(Math.random() * this.colorNote.length);
-                    console.log("Random Color: ", ranColor);
-                    console.log("this.colorNote[ranColor]: ", this.colorNote[ranColor]);
-                    this.ctx.fillStyle= this.colorNote[ranColor];
+                    var colorIndex;
+                    if(colStatus == 1)
+                    {
+                       colorIndex  = x%this.colorNote.length;
+                       console.log("colStatus: ", colStatus, " ", x);
+                    }
+                    else
+                    {
+                        colorIndex  = Math.floor(Math.random() * this.colorNote.length);
+                        console.log("colStatus: ", colStatus, " ", x);
+                    }
+                    this.ctx.fillStyle= this.colorNote[colorIndex];
                 }
                 this.ctx.fillRect(x,y,x2-x,y2-y);
                 this.ctx.fillRect(x,y,1,y2-y);
@@ -933,91 +963,111 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
         };
         this.pointerdown=function(ev) {
             console.log("this.pointerdown: ");
-            let e;
-            if(!this.enable)
-                return;
-            if(ev.touches)
-                e = ev.touches[0];
-            else
-                e = ev;
+            var selection = document.getElementById("status-Selection");
+            var status;
+            if(selection == null)
+            {
+                console.log("selection.value: null");
+                status = true;
+            }
+            else if(selection.value == "Active")
+            {
+                console.log("selection.value: ", selection.value);
+                status = true;
+            }
+           else if(selection.value == "Inactive")
+            {
+                console.log("selection.value: ", selection.value);
+                status = false;
+            }
+            if(status == true)
+            {
+                let e;
+                if(!this.enable)
+                    return;
+                if(ev.touches)
+                    e = ev.touches[0];
+                else
+                    e = ev;
 
-            this.rcTarget=this.canvas.getBoundingClientRect();
-            this.downpos=this.getPos(e);
-            this.downht=this.hitTest(this.downpos);
+                this.rcTarget=this.canvas.getBoundingClientRect();
+                this.downpos=this.getPos(e);
+                this.downht=this.hitTest(this.downpos);
 
-            this.longtapcount = 0;
-            // console.log("this.longtapcountup: ", this.longtapcountup);
-            this.longtaptimer = setInterval(this.longtapcountup.bind(this),100);
-            window.addEventListener("touchmove", this.bindpointermove,false);
-            window.addEventListener("mousemove",this.bindpointermove,false);
-            window.addEventListener("touchend",this.bindcancel);
-            window.addEventListener("mouseup",this.bindcancel);
-            window.addEventListener("contextmenu",this.bindcontextmenu);
+                this.longtapcount = 0;
+                // console.log("this.longtapcountup: ", this.longtapcountup);
+                this.longtaptimer = setInterval(this.longtapcountup.bind(this),100);
+                window.addEventListener("touchmove", this.bindpointermove,false);
+                window.addEventListener("mousemove",this.bindpointermove,false);
+                window.addEventListener("touchend",this.bindcancel);
+                window.addEventListener("mouseup",this.bindcancel);
+                window.addEventListener("contextmenu",this.bindcontextmenu);
 
-            if(e.button==2||e.ctrlKey){
-                switch(this.downht.m){
-                case "N":
-                case "B":
-                case "E":
-                    this.popMenu(this.downpos);
-                    this.dragging={o:"m"};
-                    break;
-                default:
-                    if(this.editmode=="dragmono"||this.editmode=="dragpoly")
-                        this.dragging={o:"A",p:this.downpos,p2:this.downpos,t1:this.downht.t,n1:this.downht.n};
-                    break;
+                if(e.button==2||e.ctrlKey){
+                    switch(this.downht.m){
+                    case "N":
+                    case "B":
+                    case "E":
+                        this.popMenu(this.downpos);
+                        this.dragging={o:"m"};
+                        break;
+                    default:
+                        if(this.editmode=="dragmono"||this.editmode=="dragpoly")
+                            this.dragging={o:"A",p:this.downpos,p2:this.downpos,t1:this.downht.t,n1:this.downht.n};
+                        break;
+                    }
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    this.canvas.focus();
+                    return false;
                 }
-                ev.preventDefault();
-                ev.stopPropagation();
+                switch(e.target)
+                {
+                    case this.markendimg:
+                        this.dragging={o:"E",x:this.downpos.x,m:this.markend};
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                        return false;
+                    case this.markstartimg:
+                        this.dragging={o:"S",x:this.downpos.x,m:this.markstart};
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                        return false;
+                    case this.cursorimg:
+                        this.dragging={o:"P",x:this.downpos.x,m:this.cursor};
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                        return false;
+                }
+                console.log("x: ", this.downpos.x);
+                console.log("y: ", this.downpos.y);
+
+                this.dragging={o:null,x:this.downpos.x,y:this.downpos.y,offsx:this.xoffset,offsy:this.yoffset};
                 this.canvas.focus();
+
+                console.log("this.editmode: ", this.editmode);
+
+                switch(this.editmode){
+                    case "gridpoly":
+                    case "gridmono":
+                        console.log("this.editGridDown");
+                        this.editGridDown(this.downpos);
+                        break;
+                    case "dragpoly":
+                    case "dragmono":
+                        console.log("this.editDragDown");
+                        this.editDragDown(this.downpos);
+                        break;
+                }
+                this.press = 1;
+                if(ev.preventDefault)
+                    ev.preventDefault();
+                if(ev.stopPropagation)
+                    ev.stopPropagation();
+
+
                 return false;
             }
-            switch(e.target)
-            {
-                case this.markendimg:
-                    this.dragging={o:"E",x:this.downpos.x,m:this.markend};
-                    ev.preventDefault();
-                    ev.stopPropagation();
-                    return false;
-                case this.markstartimg:
-                    this.dragging={o:"S",x:this.downpos.x,m:this.markstart};
-                    ev.preventDefault();
-                    ev.stopPropagation();
-                    return false;
-                case this.cursorimg:
-                    this.dragging={o:"P",x:this.downpos.x,m:this.cursor};
-                    ev.preventDefault();
-                    ev.stopPropagation();
-                    return false;
-            }
-            console.log("x: ", this.downpos.x);
-            console.log("y: ", this.downpos.y);
-
-            this.dragging={o:null,x:this.downpos.x,y:this.downpos.y,offsx:this.xoffset,offsy:this.yoffset};
-            this.canvas.focus();
-
-            console.log("this.editmode: ", this.editmode);
-
-            switch(this.editmode){
-                case "gridpoly":
-                case "gridmono":
-                    console.log("this.editGridDown");
-                    this.editGridDown(this.downpos);
-                    break;
-                case "dragpoly":
-                case "dragmono":
-                    console.log("this.editDragDown");
-                    this.editDragDown(this.downpos);
-                    break;
-            }
-            this.press = 1;
-            if(ev.preventDefault)
-                ev.preventDefault();
-            if(ev.stopPropagation)
-                ev.stopPropagation();
-
-
-            return false;
 
 
         };
@@ -1189,129 +1239,129 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
 
 
 
-        // this.addNote=function(t,n,g,v,f){
-        //     console.log("this.add Note: ");
-        //     if(t>=0 && n>=0 && n<128){
-        //         const ev={t:t,c:0x90,n:n,g:g,v:v,f:f};
-        //         this.sequence.push(ev);
-        //         this.sortSequence();
-        //         this.redraw();
-        //         return ev;
-        //     }
-        //     return null;
-        // };
-        // this.selAreaNote=function(t1,t2,n1,n2){
-        //     console.log("this.selAreaNote: ");
-        //     let t, i=0, e=this.sequence[i];
-        //     if(n1>n2)
-        //         t=n1,n1=n2,n2=t;
-        //     if(t1>t2)
-        //         t=t1,t1=t2,t2=t;
-        //     while(e){
-        //         if(e.t>=t1 && e.t<t2 && e.n>=n1 && e.n <= n2)
-        //             e.f=1;
-        //         else
-        //             e.f=0;
-        //         e=this.sequence[++i];
-        //     }
-        // };
-        // this.delNote=function(idx){
-        //     console.log("this.delNote: ");
-        //     this.sequence.splice(idx,1);
-        //     this.redraw();
-        // };
-        // this.delSelectedNote=function(){
-        //     const l=this.sequence.length;
-        //     for(let i=l-1;i>=0;--i){
-        //         const ev=this.sequence[i];
-        //         if(ev.f)
-        //             this.sequence.splice(i,1);
-        //     }
-        // };
-        // this.moveSelectedNote=function(dt,dn){
-        //     const l=this.sequence.length;
-        //     for(let i=0;i<l;++i){
-        //         const ev=this.sequence[i];
-        //         if(ev.f && ev.ot+dt<0)
-        //             dt=-ev.ot;
-        //     }
-        //     for(let i=0;i<l;++i){
-        //         const ev=this.sequence[i];
-        //         if(ev.f){
-        //             ev.t=(((ev.ot+dt)/this.snap+.5)|0)*this.snap;
-        //             ev.n=ev.on+dn;
-        //         }
-        //     }
-        // };
-        // this.editGridDown=function(pos){
-        //     const ht=this.hitTest(pos);
-        //     if(ht.m=="n"){
-        //         this.delNote(ht.i);
-        //         this.dragging={o:"G",m:"0"};
-        //     }
-        //     else if(ht.m=="s"&&ht.t>=0){
-        //         const pt=Math.floor(ht.t);
-        //         if(this.editmode=="gridmono")
-        //             this.delAreaNote(pt,1,ht.i);
-        //         this.addNote(pt,ht.n|0,1,this.defvelo);
-        //         this.dragging={o:"G",m:"1"};
-        //     }
-        // };
-        // this.editGridMove=function(pos){
-        //     const ht=this.hitTest(pos);
-        //     if(this.dragging.o=="G"){
-        //         switch(this.dragging.m){
-        //         case "1":
-        //             const px=Math.floor(ht.t);
-        //             if(ht.m=="s"){
-        //                 if(this.editmode=="gridmono")
-        //                     this.delAreaNote(px,1,ht.i);
-        //                 this.addNote(px,ht.n|0,1,this.defvelo);
-        //             }
-        //             break;
-        //         case "0":
-        //             if(ht.m=="n")
-        //                 this.delNote(ht.i);
-        //             break;
-        //         }
-        //     }
-        // };
-        // this.setupImage=function(){
-        // };
-        // this.preventScroll=function(e){
-        //     if(e.preventDefault)
-        //         e.preventDefault();
-        // };
-        // this.popMenu=function(pos){
-        //     const s=this.menu.style;
-        //     s.display="block";
-        //     s.top=(pos.y+8)+"px";
-        //     s.left=(pos.x+8)+"px";
-        //     this.rcMenu=this.menu.getBoundingClientRect();
-        // };
-//         this.redrawKeyboard=function(){
-//             if(this.yruler){
-//                 this.ctx.textAlign="right";
-//                 this.ctx.font=(this.steph/2)+"px 'sans-serif'";
-//                 this.ctx.fillStyle=this.colortab.kbwh;
-//                 this.ctx.fillRect(1,this.xruler,this.yruler,this.sheight);
-//                 this.ctx.fillStyle=this.colortab.kbbk;
-//                 for(var y=0;y<128;++y){
-//                     const ys=this.height-this.steph*(y-this.yoffset);
-//                     const ysemi=y%12;
-//                     const fsemi=this.semiflag[ysemi];
-//                     if(fsemi&1){
-//                         this.ctx.fillRect(0,ys,this.yruler/2,-this.steph);
-//                         this.ctx.fillRect(0,(ys-this.steph/2)|0,this.yruler,-1);
-//                     }
-//                     if(fsemi&2)
-//                         this.ctx.fillRect(0,ys|0,this.yruler,-1);
-//                     if(fsemi&4)
-//                         this.ctx.fillText("C"+(((y/12)|0)+this.octadj),this.yruler-4,ys-4);
-//                 }
-//                 this.ctx.fillRect(this.yruler,this.xruler,1,this.sheight);
-//             }
-//         };
+        this.addNote=function(t,n,g,v,f){
+            console.log("this.add Note: ");
+            if(t>=0 && n>=0 && n<128){
+                const ev={t:t,c:0x90,n:n,g:g,v:v,f:f};
+                this.sequence.push(ev);
+                this.sortSequence();
+                this.redraw();
+                return ev;
+            }
+            return null;
+        };
+        this.selAreaNote=function(t1,t2,n1,n2){
+            console.log("this.selAreaNote: ");
+            let t, i=0, e=this.sequence[i];
+            if(n1>n2)
+                t=n1,n1=n2,n2=t;
+            if(t1>t2)
+                t=t1,t1=t2,t2=t;
+            while(e){
+                if(e.t>=t1 && e.t<t2 && e.n>=n1 && e.n <= n2)
+                    e.f=1;
+                else
+                    e.f=0;
+                e=this.sequence[++i];
+            }
+        };
+        this.delNote=function(idx){
+            console.log("this.delNote: ");
+            this.sequence.splice(idx,1);
+            this.redraw();
+        };
+        this.delSelectedNote=function(){
+            const l=this.sequence.length;
+            for(let i=l-1;i>=0;--i){
+                const ev=this.sequence[i];
+                if(ev.f)
+                    this.sequence.splice(i,1);
+            }
+        };
+        this.moveSelectedNote=function(dt,dn){
+            const l=this.sequence.length;
+            for(let i=0;i<l;++i){
+                const ev=this.sequence[i];
+                if(ev.f && ev.ot+dt<0)
+                    dt=-ev.ot;
+            }
+            for(let i=0;i<l;++i){
+                const ev=this.sequence[i];
+                if(ev.f){
+                    ev.t=(((ev.ot+dt)/this.snap+.5)|0)*this.snap;
+                    ev.n=ev.on+dn;
+                }
+            }
+        };
+        this.editGridDown=function(pos){
+            const ht=this.hitTest(pos);
+            if(ht.m=="n"){
+                this.delNote(ht.i);
+                this.dragging={o:"G",m:"0"};
+            }
+            else if(ht.m=="s"&&ht.t>=0){
+                const pt=Math.floor(ht.t);
+                if(this.editmode=="gridmono")
+                    this.delAreaNote(pt,1,ht.i);
+                this.addNote(pt,ht.n|0,1,this.defvelo);
+                this.dragging={o:"G",m:"1"};
+            }
+        };
+        this.editGridMove=function(pos){
+            const ht=this.hitTest(pos);
+            if(this.dragging.o=="G"){
+                switch(this.dragging.m){
+                case "1":
+                    const px=Math.floor(ht.t);
+                    if(ht.m=="s"){
+                        if(this.editmode=="gridmono")
+                            this.delAreaNote(px,1,ht.i);
+                        this.addNote(px,ht.n|0,1,this.defvelo);
+                    }
+                    break;
+                case "0":
+                    if(ht.m=="n")
+                        this.delNote(ht.i);
+                    break;
+                }
+            }
+        };
+        this.setupImage=function(){
+        };
+        this.preventScroll=function(e){
+            if(e.preventDefault)
+                e.preventDefault();
+        };
+        this.popMenu=function(pos){
+            const s=this.menu.style;
+            s.display="block";
+            s.top=(pos.y+8)+"px";
+            s.left=(pos.x+8)+"px";
+            this.rcMenu=this.menu.getBoundingClientRect();
+        };
+        this.redrawKeyboard=function(){
+            if(this.yruler){
+                this.ctx.textAlign="right";
+                this.ctx.font=(this.steph/2)+"px 'sans-serif'";
+                this.ctx.fillStyle=this.colortab.kbwh;
+                this.ctx.fillRect(1,this.xruler,this.yruler,this.sheight);
+                this.ctx.fillStyle=this.colortab.kbbk;
+                for(var y=0;y<128;++y){
+                    const ys=this.height-this.steph*(y-this.yoffset);
+                    const ysemi=y%12;
+                    const fsemi=this.semiflag[ysemi];
+                    if(fsemi&1){
+                        this.ctx.fillRect(0,ys,this.yruler/2,-this.steph);
+                        this.ctx.fillRect(0,(ys-this.steph/2)|0,this.yruler,-1);
+                    }
+                    if(fsemi&2)
+                        this.ctx.fillRect(0,ys|0,this.yruler,-1);
+                    if(fsemi&4)
+                        this.ctx.fillText("C"+(((y/12)|0)+this.octadj),this.yruler-4,ys-4);
+                }
+                this.ctx.fillRect(this.yruler,this.xruler,1,this.sheight);
+            }
+        };
         this.ready();
     }
     getAttr(n,def){
@@ -1327,11 +1377,11 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
         return v;
     }
     getWord(str){
-        console.log("SHOW LYRIC SENTENCES.");
+        // console.log("SHOW LYRIC SENTENCES.");
         var words = str.split(" ");
-        for (var i = 0; i < words.length; i++) {
-            console.log(words[i], " ");
-        }
+        // for (var i = 0; i < words.length; i++) {
+        //     console.log(words[i], " ");
+        // }
         return words;
     }
     sendEvent(ev){
@@ -1341,5 +1391,4 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
         this.dispatchEvent(event);
     }
     disconnectedCallback(){}
-
 });
