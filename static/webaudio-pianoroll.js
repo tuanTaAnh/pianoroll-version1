@@ -71,7 +71,6 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                 kbwidth:            {type:Number,value:40},
                 loop:               {type:Number, value:0},
                 preload:            {type:Number, value:1.0},
-                tempo:              {type:Number, value:120, observer:'updateTimer'},
                 enable:             {type:Boolean, value:true},
             },
         };
@@ -143,7 +142,7 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
 <img id="wac-cursor" class="marker" src="${this.cursorsrc}"/>
 <div id="wac-menu">Delete</div>
 </div>`;
-
+         this.tempo = 120;
         this.sortSequence=function(){
             this.sequence.sort((x,y)=>{return x.t-y.t;});
         };
@@ -162,6 +161,8 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             this.cursor=tick;
         };
         this.updateTimer=function(){
+             this.tempo = document.getElementById('tempo-slider').value;
+             console.log("this.tempo: ", this.tempo);
             this.tick2time=4*60/this.tempo/this.timebase;
         };
         this.play=function(actx,playcallback,tick){
@@ -216,6 +217,8 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             this.timestack=[];
             this.time0=this.time1=this.actx.currentTime+0.1;
             this.tick0=this.tick1=this.cursor;
+            this.tempo = document.getElementById('tempo-slider').value;
+            console.log("this.tempo: ", this.tempo);
             this.tick2time=4*60/this.tempo/this.timebase;
             const p=this.findNextEv(this.cursor);
             this.index1=p.i;
@@ -301,6 +304,8 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                     break;
                 case 't': case 'T':
                     ++parse.i; n=-1; l=0;
+                    this.tempo = document.getElementById('tempo-slider').value;
+                    console.log("this.tempo: ", this.tempo);
                     this.tempo=getNum(parse);
                     break;
                 case 'o': case 'O':
@@ -366,6 +371,8 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                 }
                 return mmlnote.substring(1);
             }
+            this.tempo = document.getElementById('tempo-slider').value;
+            console.log("this.tempo: ", this.tempo);
             var mml="t"+this.tempo+"o4l8";
             var ti=0,meas=0,oct=5,n;
             var notes=["c","d-","d","e-","e","f","g-","g","a-","a","b-","b"];
@@ -722,8 +729,9 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                 this.ctx.fillRect(this.dragging.p.x,this.dragging.p.y,this.dragging.p2.x-this.dragging.p.x,this.dragging.p2.y-this.dragging.p.y);
             }
         };
-        this.colorNote = [];
+        this.colorNote = ["#FF0000", "#90EE90", "#7FFF00", "#FFF8DC", "#BC8F8F", "#FF69B4", "#FFA500", "#FFFACD", "#1E90FF", "#2F4F4F", "#000080", "#483D8B"];
         this.redraw=function() {
+            console.log("REDRAW");
             var elementLyric = document.getElementById('songlyric');
             if(elementLyric != null)
             {
@@ -732,7 +740,8 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             }
 
             console.log("this.lyricSong.length: ", this.lyricSong.length);
-            let x,w,y,x2,y2, pos;
+            let x,w,y,x2,y2;
+            var pos = 0;
             if(!this.ctx)
                 return;
             this.ctx.clearRect(0,0,this.width,this.height);
@@ -741,30 +750,36 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             this.redrawGrid();
             const l=this.sequence.length;
             console.log("this.findNextEv 5");
-            for(let s=0; s<l; ++s){
+            var sequenceX = []
+            var sequenceY = []
+            var sequenceX2 = []
+            var sequenceY2 = []
+
+            for(let s=0; s<l; ++s) {
                 const ev=this.sequence[s];
                 w=ev.g*this.stepw;
-                pos = (ev.t-this.xoffset);
-                x=pos*this.stepw+this.yruler+this.kbwidth;
+                var posX = (ev.t-this.xoffset);
+                x=posX*this.stepw+this.yruler+this.kbwidth;
                 x2=(x+w)|0; x|=0;
                 y=this.height - (ev.n-this.yoffset)*this.steph;
                 y2=(y-this.steph)|0; y|=0;
 
-                console.log("pos: ", pos);
+                sequenceX[s] = x;
+                sequenceY[s] = y;
+                sequenceX2[s] = x2;
+                sequenceY2[s] = y2;
+            }
 
-                console.log("s: ", s);
-                console.log("x: ", x, " y: ", y, " x2-x: ", x2-x, " y2-y: ", y2-y);
-                if(ev.f)
-                    this.ctx.fillStyle=this.colnotesel;
-                else
-                    this.ctx.fillStyle=this.colnote;
-                this.ctx.fillRect(x,y,x2-x,y2-y)
-                if(ev.f)
-                    this.ctx.fillStyle=this.colnoteselborder;
-                else
-                {
-                    this.ctx.fillStyle=this.colnoteborder;
-                }
+            this.bubleSort(sequenceX, sequenceY, sequenceX2, sequenceY2);
+
+            for(let s=0; s<l; ++s){
+                const ev=this.sequence[s];
+                w=ev.g*this.stepw;
+                var posX = (ev.t-this.xoffset);
+                x=sequenceX[s];
+                x2=sequenceX2[s];
+                y=sequenceY[s];
+                y2=sequenceY2[s];
 
                 /// text color
                 this.ctx.fillStyle = 'black';
@@ -779,8 +794,24 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                      this.ctx.font = "12px Arial";
                     this.ctx.fillText("No Lyric", x, y2);
                 }
+                pos++;
 
-
+                if(ev.f)
+                {
+                    console.log("EV.F");
+                    console.log("this.colnotesel: ", this.colnotesel);
+                    this.ctx.fillStyle=this.colnotesel;
+                }
+                else
+                {
+                    console.log("EV");
+                    // this.ctx.fillStyle=this.colnote;
+                    var ranColor = Math.floor(Math.random() * this.colorNote.length);
+                    console.log("Random Color: ", ranColor);
+                    console.log("this.colorNote[ranColor]: ", this.colorNote[ranColor]);
+                    this.ctx.fillStyle= this.colorNote[ranColor];
+                }
+                this.ctx.fillRect(x,y,x2-x,y2-y);
                 this.ctx.fillRect(x,y,1,y2-y);
                 this.ctx.fillRect(x2,y,1,y2-y);
                 this.ctx.fillRect(x,y,x2-x,1);
@@ -792,6 +823,34 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             this.redrawXRuler();
             this.redrawMarker();
             this.redrawAreaSel();
+        };
+        this.bubleSort=function (sequenceX, sequenceY, sequenceX2, sequenceY2)
+        {
+            var len = sequenceX.length;
+            for(var i = 0;i < len-1;i++)
+            {
+                for(var j = i+1;j < len;j++)
+                {
+                    if(sequenceX[i] > sequenceX[j])
+                    {
+                        var tmpX = sequenceX[i];
+                        sequenceX[i] = sequenceX[j];
+                        sequenceX[j] = tmpX;
+
+                        var tmpY = sequenceY[i];
+                        sequenceY[i] = sequenceY[j];
+                        sequenceY[j] = tmpY;
+
+                        var tmpX2 = sequenceX2[i];
+                        sequenceX2[i] = sequenceX2[j];
+                        sequenceX2[j] = tmpX2;
+
+                        var tmpY2 = sequenceY2[i];
+                        sequenceY2[i] = sequenceY2[j];
+                        sequenceY2[j] = tmpY2;
+                    }
+                }
+            }
         };
         this.getPos=function(e){
             // console.log("this.getPos: ");
