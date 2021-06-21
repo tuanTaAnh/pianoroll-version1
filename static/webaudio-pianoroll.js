@@ -1386,6 +1386,7 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
     }
     getWord(str){
         // console.log("SHOW LYRIC SENTENCES.");
+        str = str.replace(/\s+/g, ' ').trim()
         var words = str.split(" ");
         // for (var i = 0; i < words.length; i++) {
         //     console.log(words[i], " ");
