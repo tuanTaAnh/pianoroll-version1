@@ -757,9 +757,13 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             {
                 colStatus = 1;
             }
-            else
+            else if(colSelection.value == "Colorfull")
             {
                 colStatus = 2;
+            }
+            else
+            {
+                colStatus = 3;
             }
             console.log("REDRAW");
             var elementLyric = document.getElementById('songlyric');
@@ -835,17 +839,19 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                 else
                 {
                     // console.log("EV");
-                    // this.ctx.fillStyle=this.colnote;
                     var colorIndex;
                     if(colStatus == 1)
                     {
                        colorIndex  = x%this.colorNote.length;
                        // console.log("colStatus: ", colStatus, " ", x);
                     }
-                    else
+                    else if(colStatus == 2)
                     {
                         colorIndex  = Math.floor(Math.random() * this.colorNote.length);
-                        // console.log("colStatus: ", colStatus, " ", x);
+                    }
+                    else
+                    {
+                        this.ctx.fillStyle=this.colnote;
                     }
                     this.ctx.fillStyle= this.colorNote[colorIndex];
                 }
