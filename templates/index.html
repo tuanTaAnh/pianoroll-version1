@@ -212,5 +212,13 @@ function Layout(k){
     console.log("SET LYRIC");
     document.getElementById("proll").setLyric(document.getElementById('songlyric').value);
 </script>
+<script>
+    var textcontent = document.getElementById('songlyric');
+    textcontent.onkeyup = textcontent.onkeypress = function(){
+        console.log("onkeyup textcontent!");
+        document.getElementById("proll").setLyric(document.getElementById('songlyric').value);
+        document.getElementById("proll").redraw();
+  }
+</script>
 </body>
 </html>

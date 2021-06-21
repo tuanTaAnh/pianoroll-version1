@@ -172,8 +172,8 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             this.cursor=tick;
         };
         this.updateTimer=function(){
-             this.tempo = document.getElementById('tempo-slider').value;
-             console.log("this.tempo: ", this.tempo);
+             // this.tempo = document.getElementById('tempo-slider').value;
+             console.log("this.tempo 1: ", this.tempo);
             this.tick2time=4*60/this.tempo/this.timebase;
         };
         this.play=function(actx,playcallback,tick){
@@ -181,14 +181,21 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             function Interval(){
                 const current=this.actx.currentTime;
                 while(this.timestack.length>1 && current>=this.timestack[1][0]){
+                    this.tempo = document.getElementById('tempo-slider').value;
+                    this.tick2time=4*60/this.tempo/this.timebase;
                     this.timestack.shift();
                 }
                 this.cursor=this.timestack[0][1]+(current-this.timestack[0][0])/this.timestack[0][2];
                 this.redrawMarker();
                 while(current+this.preload>=this.time1){
+
+                    this.tempo = document.getElementById('tempo-slider').value;
+                    this.tick2time=4*60/this.tempo/this.timebase;
+
                     this.time0=this.time1;
                     this.tick0=this.tick1;
                     console.log("this.time0: ", this.time0);
+
                     this.redraw();
                     let e=this.sequence[this.index1];
                     if(!e || e.t>=this.markend){
@@ -216,8 +223,8 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                         }
                         else
                             this.time1+=(e.t-this.tick1)*this.tick2time;
-                        console.log("this.time1: ", this.time1);
                     }
+                    console.log("this.time1: ", this.time1);
                 }
             }
             if(typeof(tick)!="undefined")
@@ -230,8 +237,9 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             this.time0=this.time1=this.actx.currentTime+0.1;
             this.tick0=this.tick1=this.cursor;
             this.tempo = document.getElementById('tempo-slider').value;
-            console.log("this.tempo: ", this.tempo);
+            console.log("this.tempo 3: ", this.tempo);
             this.tick2time=4*60/this.tempo/this.timebase;
+            console.log("this.tick2time: ", this.tick2time);
             const p=this.findNextEv(this.cursor);
             this.index1=p.i;
             this.timestack.push([0,this.cursor,0]);
@@ -316,8 +324,8 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                     break;
                 case 't': case 'T':
                     ++parse.i; n=-1; l=0;
-                    this.tempo = document.getElementById('tempo-slider').value;
-                    console.log("this.tempo: ", this.tempo);
+                    // this.tempo = document.getElementById('tempo-slider').value;
+                    console.log("this.tempo 4: ", this.tempo);
                     this.tempo=getNum(parse);
                     break;
                 case 'o': case 'O':
@@ -383,8 +391,8 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                 }
                 return mmlnote.substring(1);
             }
-            this.tempo = document.getElementById('tempo-slider').value;
-            console.log("this.tempo: ", this.tempo);
+            // this.tempo = document.getElementById('tempo-slider').value;
+            console.log("this.tempo 5: ", this.tempo);
             var mml="t"+this.tempo+"o4l8";
             var ti=0,meas=0,oct=5,n;
             var notes=["c","d-","d","e-","e","f","g-","g","a-","a","b-","b"];
@@ -761,7 +769,7 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                 this.lyricSong = this.getWord(str);
             }
 
-            console.log("this.lyricSong.length: ", this.lyricSong.length);
+            // console.log("this.lyricSong.length: ", this.lyricSong.length);
             let x,w,y,x2,y2;
             var pos = 0;
             if(!this.ctx)
@@ -806,7 +814,7 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                 /// text color
                 this.ctx.fillStyle = 'black';
                 this.ctx.font = "15px Arial";
-                if(pos < this.lyricSong.length)
+                if(pos < this.lyricSong.length && this.lyricSong[pos] != "")
                 {
                     var lyr = this.lyricSong[pos];
                     this.ctx.fillText(lyr, x+(x2-x)/4, y2);
@@ -832,12 +840,12 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                     if(colStatus == 1)
                     {
                        colorIndex  = x%this.colorNote.length;
-                       console.log("colStatus: ", colStatus, " ", x);
+                       // console.log("colStatus: ", colStatus, " ", x);
                     }
                     else
                     {
                         colorIndex  = Math.floor(Math.random() * this.colorNote.length);
-                        console.log("colStatus: ", colStatus, " ", x);
+                        // console.log("colStatus: ", colStatus, " ", x);
                     }
                     this.ctx.fillStyle= this.colorNote[colorIndex];
                 }
@@ -887,7 +895,7 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             let t=null;
             if(e){
                 t=e.target;
-                // console.log("this.rcTarget: ", this.rcTarget);
+                console.log("this.rcTarget: ", this.rcTarget);
                 this.lastx=e.clientX-this.rcTarget.left;
                 this.lasty=e.clientY-this.rcTarget.top;
             }
