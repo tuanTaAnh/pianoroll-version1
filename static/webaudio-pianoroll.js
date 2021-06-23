@@ -751,6 +751,8 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
         };
         this.colorNote = ["#FF0000", "#90EE90", "#7FFF00", "#FFF8DC", "#BC8F8F", "#FF69B4", "#FFA500", "#FFFACD", "#1E90FF", "#2F4F4F", "#000080", "#483D8B"];
         this.redraw=function() {
+
+
             var colSelection = document.getElementById("color-Selection");
             var colStatus;
             if(colSelection == null || colSelection.value == "Normal")
@@ -901,7 +903,7 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             let t=null;
             if(e){
                 t=e.target;
-                console.log("this.rcTarget: ", this.rcTarget);
+                // console.log("this.rcTarget: ", this.rcTarget);
                 this.lastx=e.clientX-this.rcTarget.left;
                 this.lasty=e.clientY-this.rcTarget.top;
             }
@@ -976,24 +978,18 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             }
         };
         this.pointerdown=function(ev) {
-            console.log("this.pointerdown: ");
-            var selection = document.getElementById("status-Selection");
+            var checkbox = document.getElementById("checkbox-input");
             var status;
-            if(selection == null)
+            if(checkbox == null)
             {
                 console.log("selection.value: null");
                 status = true;
             }
-            else if(selection.value == "Active")
+            else
             {
-                console.log("selection.value: ", selection.value);
-                status = true;
+                status = checkbox.checked;
             }
-           else if(selection.value == "Inactive")
-            {
-                console.log("selection.value: ", selection.value);
-                status = false;
-            }
+
             if(status == true)
             {
                 let e;
@@ -1405,5 +1401,6 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
         event.initEvent(ev,false,true);
         this.dispatchEvent(event);
     }
+
     disconnectedCallback(){}
 });

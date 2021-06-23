@@ -6,69 +6,91 @@ body{
 }
 #base {
     display: inline-block;
-    width: 900px;
+    width: 90%;
     margin: 10px;
-    margin-right: 20px;
-    overflow: auto;
-    /*-moz-box-shadow: #555 0 0 8px;*/
-    /*-webkit-box-shadow: #555 0 0 8px;*/
-    /*-o-box-shadow: #555 0 0 8px;*/
-    /*box-shadow: #555 0 0 8px;*/
-    background:#88d;
-    position:relative;
-    height:500px;
-}
-
-#lyric-container {
-    display: inline-block;
-    width: 400px;
-    height:500px;
-    margin: 10px auto;
-    padding: 10px;
+    margin-left: 50px;
     overflow: auto;
     -moz-box-shadow: #555 0 0 8px;
     -webkit-box-shadow: #555 0 0 8px;
     -o-box-shadow: #555 0 0 8px;
     box-shadow: #555 0 0 8px;
+    background:#88d;
+    position:relative;
+    height:920px;
 }
 #proll{
     position:absolute;
     left:16px;
     top:50px;
+    margin-left: 50px;
 }
+#checkbox-container{
+    position:absolute;
+    left:150px;
+    top:500px;
+    font-size: 25px;
+}
+#checkbox-container input{
+    width: 20px;
+    height: 20px;
+}
+#checkbox-container input:checked {
+    /*border-color: red;*/
+    color: #f00;
+    background-color:white;
+}
+
 #xrange{
     position:absolute;
-    left:700px;
-    top:400px;
+    left:900px;
+    top:500px;
 }
 #xoffset{
     position:absolute;
-    left:480px;
-    top:400px;
+    left:620px;
+    top:500px;
 }
-#yrange{
-    position:absolute;
-    left:850px;
-    top:270px;
-}
-#yoffset{
-    position:absolute;
-    left:850px;
-    top:60px;
-}
-
 #tempo-slider{
     position:absolute;
-    left:300px;
-    top:400px;
+    left:320px;
+    top:500px;
+    width: 200px;
 }
 #slider-title{
     position:absolute;
-    left:330px;
-    top:420px;
+    left:400px;
+    top:520px;
     text-align: center;
     font-family:'Roboto',sans-serif;
 }
+#lyric-container {
+    position:absolute;
+    left:16px;
+    top:550px;
+
+    display: inline-block;
+    width: 400px;
+    height:300px;
+    margin-bottom: 10px;
+    padding: 10px;
+    /*overflow: auto;*/
+    /*-moz-box-shadow: #555 0 0 8px;*/
+    /*-webkit-box-shadow: #555 0 0 8px;*/
+    /*-o-box-shadow: #555 0 0 8px;*/
+    /*box-shadow: #555 0 0 8px;*/
+}
+
+#yrange{
+    position:absolute;
+    left:1130px;
+    top:330px;
+}
+#yoffset{
+    position:absolute;
+    left:1130px;
+    top:80px;
+}
+
 
 #update-button{
 display:inline-block;
@@ -155,7 +177,7 @@ function Layout(k){
 </head>
 
 <body>
-<h1>webaudio-pianoroll Live Demo</h1>
+<h1 style="margin-left: 50px;">webaudio-pianoroll Live Demo</h1>
 <hr/>
 
 <hr/>
@@ -164,7 +186,7 @@ function Layout(k){
     <div id="base">
         <webaudio-pianoroll
         id="proll"
-        width="800" height="320"
+        width="1020" height="420"
         padding-left="50px"
         editmode="dragmono"
         yrange="32"
@@ -176,17 +198,21 @@ function Layout(k){
         colrulerbg="#87f" colrulerfg="#fff"
         ></webaudio-pianoroll>
 
-        <webaudio-slider oninput="Layout(this)" id="xrange" direction="horz" width="120" height="24" min="1" max="10" value="1"></webaudio-slider>
+        <webaudio-slider oninput="Layout(this)" id="xrange" direction="horz" width="140" height="24" min="1" max="10" value="1"></webaudio-slider>
         <webaudio-slider oninput="Layout(this)" id="xoffset" direction="horz" width="200" height="24" min="0" max="20" step="0.01" value="0"></webaudio-slider>
         <webaudio-slider oninput="Layout(this)" id="yrange" direction="vert" width="24" height="120" min="3" max="32" value="16"></webaudio-slider>
         <webaudio-slider oninput="Layout(this)" id="yoffset" direction="vert" width="24" height="200" min="30" max="120" height="200" value="60"></webaudio-slider>
         <input type="range" min="30" max="220" value="60" id="tempo-slider">
+        <label id="checkbox-container">
+          <input id="checkbox-input" type="checkbox" checked="checked" style="color: black; background-color: white">
+          Active
+        </label>
         <p id="slider-title">Tempo</p>
-    </div>
-    <div id="lyric-container">
-        <h2 style="text-align: center;">Lyric</h2>
-        <textarea id="songlyric" rows="20" cols="45" >Mỗi khi em đến biết bao hạnh phúc</textarea>
-        <button id="update-button" style="text-align: center;" onclick="Update()">Update</button>
+        <div id="lyric-container">
+            <h2 style="text-align: center;">Lyric</h2>
+            <textarea id="songlyric" rows="15" cols="45" >Mỗi khi em đến biết bao hạnh phúc</textarea>
+<!--            <button id="update-button" style="text-align: center;" onclick="Update()">Update</button>-->
+        </div>
     </div>
 </div>
 <hr/>
@@ -219,7 +245,7 @@ function Layout(k){
         console.log("onkeyup textcontent!");
         document.getElementById("proll").setLyric(document.getElementById('songlyric').value);
         document.getElementById("proll").redraw();
-  }
+    }
 </script>
 </body>
 </html>
