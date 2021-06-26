@@ -9,25 +9,32 @@ body{
     width: 90%;
     margin: 10px;
     margin-left: 50px;
-    overflow: auto;
+    /*overflow: auto;*/
     -moz-box-shadow: #555 0 0 8px;
     -webkit-box-shadow: #555 0 0 8px;
     -o-box-shadow: #555 0 0 8px;
     box-shadow: #555 0 0 8px;
     background:#88d;
     position:relative;
-    height:920px;
+    height:820px;
 }
+#title-container{
+    position:absolute;
+    left:16px;
+    top:20px;
+}
+
 #proll{
     position:absolute;
     left:16px;
-    top:50px;
+    top:70px;
     margin-left: 50px;
 }
+
 #checkbox-container{
     position:absolute;
-    left:150px;
-    top:500px;
+    left:120px;
+    top:490px;
     font-size: 25px;
 }
 #checkbox-container input{
@@ -39,39 +46,50 @@ body{
     color: #f00;
     background-color:white;
 }
-
-#xrange{
-    position:absolute;
-    left:900px;
-    top:500px;
-}
-#xoffset{
-    position:absolute;
-    left:620px;
-    top:500px;
-}
 #tempo-slider{
     position:absolute;
-    left:320px;
-    top:500px;
+    left:290px;
+    top:495px;
     width: 200px;
 }
 #slider-title{
     position:absolute;
-    left:400px;
-    top:520px;
+    left:360px;
+    top:510px;
     text-align: center;
     font-family:'Roboto',sans-serif;
+    font-size: 20px;
+}
+#xoffset{
+    position:absolute;
+    left:560px;
+    top:490px;
+}
+#xrange{
+    position:absolute;
+    left:830px;
+    top:490px;
+}
+#color-Selection{
+    position:absolute;
+    left:1020px;
+    top:490px;
+    width: 120px;
+    height: 30px;
+    font-size: 20px;
+    background-color: #c2a885;
+    border: 1px solid;
+    border-radius: 3px;
 }
 #lyric-container {
     position:absolute;
     left:16px;
-    top:550px;
+    top:540px;
 
     display: inline-block;
     width: 400px;
     height:300px;
-    margin-bottom: 10px;
+    /*margin-bottom: 10px;*/
     padding: 10px;
     /*overflow: auto;*/
     /*-moz-box-shadow: #555 0 0 8px;*/
@@ -79,6 +97,76 @@ body{
     /*-o-box-shadow: #555 0 0 8px;*/
     /*box-shadow: #555 0 0 8px;*/
 }
+#reset-button{
+    position:absolute;
+    left:570px;
+    top:630px;
+    background: #ba0909;
+    color: #fff;
+    border-color: red;
+    font-size: 20px;
+    width: 100px;
+    height: 100px;
+    /*margin: auto;*/
+    text-align: center;
+    border-radius: 50%;
+    border: 1px solid;
+}
+#reset-title{
+    position:absolute;
+    left:590px;
+    top:730px;
+    text-align: center;
+    font-family:'Roboto',sans-serif;
+    font-size: 20px;
+}
+#play-button{
+    position:absolute;
+    left:780px;
+    top:630px;
+    background: #ba0909;
+    color: #fff;
+    border-color: red;
+    font-size: 20px;
+    width: 100px;
+    height: 100px;
+    /*margin: auto;*/
+    text-align: center;
+    border-radius: 50%;
+    border: 1px solid;
+}
+#play-title{
+    position:absolute;
+    left:810px;
+    top:730px;
+    text-align: center;
+    font-family:'Roboto',sans-serif;
+    font-size: 20px;
+}
+#stop-button{
+    position:absolute;
+    left:990px;
+    top:630px;
+    background: #ba0909;
+    color: #fff;
+    border-color: red;
+    font-size: 20px;
+    width: 100px;
+    height: 100px;
+    /*margin: auto;*/
+    text-align: center;
+    border-radius: 50%;
+    border: 1px solid;
+}
+#stop-title{
+    position:absolute;
+    left:1020px;
+    top:730px;
+    text-align: center;
+    font-family:'Roboto',sans-serif;
+    font-size: 20px;
+}
+
 
 #yrange{
     position:absolute;
@@ -89,6 +177,25 @@ body{
     position:absolute;
     left:1130px;
     top:80px;
+}
+
+#get-button{
+    width: 220px;
+    height: 32px;
+    margin-left: 50px;
+    margin-bottom: 10px;
+    background-color: #008CBA;
+    color: white;
+    font-size: 18px;
+}
+#set-button{
+    width: 220px;
+    height: 32px;
+    margin-left: 10px;
+    margin-bottom: 10px;
+    background-color: #008CBA;
+    color: white;
+    font-size: 18px;
 }
 
 
@@ -115,17 +222,9 @@ transition: all 0.2s;
     border: 1px solid;
     border-radius: 3px;
 }
-#color-Selection{
-    width: 100px;
-    background-color: antiquewhite;
-    border: 1px solid;
-    border-radius: 3px;
-}
 
 </style>
-<!--<script src="bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>-->
-<script src="https://g200kg.github.io/webaudio-controls/webaudio-controls.js" ></script>
-<script src="/static/webaudio-pianoroll.js"></script>
+
 <script>
 timebase=16;
 actx=new AudioContext();
@@ -173,20 +272,25 @@ function Layout(k){
 }
 </script>
 
+<!--<meta name='viewport' content='width=device-width, initial-scale=1'>-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"></script>
+<!--<script src="bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>-->
+<script src="https://g200kg.github.io/webaudio-controls/webaudio-controls.js" ></script>
+<script src="/static/webaudio-pianoroll.js"></script>
 <link rel="shortcut icon" href="#">
 </head>
 
 <body>
-<h1 style="margin-left: 50px;">webaudio-pianoroll Live Demo</h1>
-<hr/>
 
-<hr/>
-<br/>
+<!--<hr/>-->
+<!--<br/>-->
 <div id="main-container">
+    <h1 id="title-container" style="margin-left: 50px;">webaudio-pianoroll Live Demo</h1>
+<!--    <hr/>-->
     <div id="base">
         <webaudio-pianoroll
         id="proll"
-        width="1020" height="420"
+        width="1020" height="380"
         padding-left="50px"
         editmode="dragmono"
         yrange="32"
@@ -210,29 +314,44 @@ function Layout(k){
         <p id="slider-title">Tempo</p>
         <div id="lyric-container">
             <h2 style="text-align: center;">Lyric</h2>
-            <textarea id="songlyric" rows="15" cols="45" >Mỗi khi em đến biết bao hạnh phúc</textarea>
+            <textarea style="margin-left: 50px;" id="songlyric" rows="10" cols="45" >Mỗi khi em đến biết bao hạnh phúc</textarea>
 <!--            <button id="update-button" style="text-align: center;" onclick="Update()">Update</button>-->
         </div>
+        <button id="play-button" onclick="Play()"><i class='fas fa-play'></i></button>
+        <p id="play-title">Play</p>
+        <button id="reset-button" onclick="Reset()"><i class='fas fa-redo'></i></button>
+        <p id="reset-title">Reset</p>
+        <button id="stop-button" onclick="document.getElementById('proll').stop()"><i class='fas fa-stop'></i></button>
+        <p id="stop-title">Stop</p>
+        <select id="color-Selection">
+            <option value="Normal">Normal</option>
+            <option value="Colorfull">Colorfull</option>
+            <option value="No Color">No Color</option>
+        </select>
     </div>
 </div>
-<hr/>
+
+<!--
+dining room,
+study,
+bathroom
+3,
+shower,
+television,
+piano,
+glasses,
+glove,
+-->
 <br/>
-<button style="width: 100px;" onclick="document.getElementById('mml').value=(document.getElementById('proll').getMMLString())">getMMLString</button>
-<button style="width: 100px;" onclick="document.getElementById('proll').setMMLString(document.getElementById('mml').value)">setMMLString</button>
-<button style="width: 100px;" onclick="Reset()">Reset</button>
-<button style="width: 100px;" onclick="Play()">Play</button>
-<button style="width: 100px;" onclick="document.getElementById('proll').stop()">Stop</button>
-<select id="status-Selection">
-    <option value="Active">Active</option>
-    <option value="Inactive">Inactive</option>
-</select>
-<select id="color-Selection">
-    <option value="Normal">Normal</option>
-    <option value="Colorfull">Colorfull</option>
-    <option value="No Color">No Color</option>
-</select>
+<button id="get-button" onclick="document.getElementById('mml').value=(document.getElementById('proll').getMMLString())">GetMMLString</button>
+<button id="set-button" onclick="document.getElementById('proll').setMMLString(document.getElementById('mml').value)">SetMMLString</button>
+
+<!--<select id="status-Selection">-->
+<!--    <option value="Active">Active</option>-->
+<!--    <option value="Inactive">Inactive</option>-->
+<!--</select>-->
 <br/>
-<textarea id="mml" rows="10" cols="88"></textarea>
+<textarea id="mml" style="margin-left: 50px;" rows="10" cols="150"></textarea>
 <br/>
 <hr/>
 <script>
