@@ -46,6 +46,14 @@ body{
     color: #f00;
     background-color:white;
 }
+#checkbox-index{
+    position:absolute;
+    left:360px;
+    top:460px;
+    text-align: center;
+    font-family:'Roboto',sans-serif;
+    font-size: 17px;
+}
 #tempo-slider{
     position:absolute;
     left:290px;
@@ -270,6 +278,11 @@ function Layout(k){
         break;
     }
 }
+
+function updateTextInput(val) {
+    var tempoIndex = document.getElementById('tempo-slider').value;
+    document.getElementById("checkbox-index").innerHTML = tempoIndex;
+}
 </script>
 
 <!--<meta name='viewport' content='width=device-width, initial-scale=1'>-->
@@ -306,7 +319,8 @@ function Layout(k){
         <webaudio-slider oninput="Layout(this)" id="xoffset" direction="horz" width="200" height="24" min="0" max="20" step="0.01" value="0"></webaudio-slider>
         <webaudio-slider oninput="Layout(this)" id="yrange" direction="vert" width="24" height="120" min="3" max="32" value="16"></webaudio-slider>
         <webaudio-slider oninput="Layout(this)" id="yoffset" direction="vert" width="24" height="200" min="30" max="120" height="200" value="60"></webaudio-slider>
-        <input type="range" min="30" max="220" value="60" id="tempo-slider">
+        <input type="range" min="30" max="220" value="60" id="tempo-slider" onchange="updateTextInput(this.value);">
+        <p id="checkbox-index"></p>
         <label id="checkbox-container">
           <input id="checkbox-input" type="checkbox" checked="checked" style="color: black; background-color: white">
           Active
@@ -365,6 +379,10 @@ glove,
         document.getElementById("proll").setLyric(document.getElementById('songlyric').value);
         document.getElementById("proll").redraw();
     }
+</script>
+<script>
+    var tempoIndex = document.getElementById('tempo-slider').value;
+    document.getElementById("checkbox-index").innerHTML = tempoIndex;
 </script>
 </body>
 </html>
